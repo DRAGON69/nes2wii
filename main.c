@@ -61,9 +61,7 @@ int main()
 
 	wm_init((void*)classic_controller_id, but_dat, (void*)cal_data, wiimote_query);
 
-	uint8_t mode = eeprom_read_byte((void*)0); // current mode
-	if (mode > 2) mode = 0;
-	int mode_change_timer = 0; // buttons combination hold time
+	const uint8_t mode = 0; // current mode
 
 	while(1)
 	{
@@ -76,7 +74,6 @@ int main()
 		int x = 0;
 		int y = 0;
 		int b, c;
-		int mode_change_counter = 0; // how many spetial buttons pressed
 		GREEN_OFF;
 	
 #ifdef N64_ENABLED	
@@ -266,7 +263,6 @@ int main()
 				{
 					case 0: // B
 						PRESS_B;
-						mode_change_counter++;
 						break;
 					case 1: // Y
 						PRESS_Y;
@@ -276,7 +272,6 @@ int main()
 						break;
 					case 3: // Start
 						PRESS_START;
-						mode_change_counter++;
 						break;
 					case 4: // Up
 						if ((mode == 0) || (mode == 1)) y = 30;
@@ -296,7 +291,6 @@ int main()
 						break;
 					case 8: // A
 						PRESS_A;
-						mode_change_counter++;
 						break;
 					case 9: // X
 						PRESS_X;
@@ -322,18 +316,15 @@ int main()
 				{
 					case 0: // A
 						PRESS_A;
-						mode_change_counter++;
 						break;
 					case 1: // B
 						PRESS_B;
-						mode_change_counter++;
 						break;
 					case 2: // Select
 						PRESS_SELECT;
 						break;
 					case 3: // Start
 						PRESS_START;
-						mode_change_counter++;
 						break;
 					case 4: // Up
 						if ((mode == 0) || (mode == 1)) y = 30;
@@ -382,12 +373,10 @@ int main()
 							case 4: // A(SMD)/Y(Classic)
 								PRESS_Y;
 								GREEN_ON;
-								if (c == 0) mode_change_counter++;
 								break;
 							case 5: // Start
 								PRESS_START;
 								GREEN_ON;
-								if (c == 0) mode_change_counter++;
 								break;
 							case 10: // Left
 								if ((mode == 0) || (mode == 1)) x = -30;
@@ -402,7 +391,6 @@ int main()
 							case 12: // B(SMD)/B(Classic)
 								PRESS_B;
 								GREEN_ON;
-								if (c == 0) mode_change_counter++;
 								break;
 							case 13: // C(SMD)/A(Classic)
 								PRESS_A;
@@ -456,30 +444,7 @@ int main()
 		wm_newaction(but_dat);
 	
 		_delay_us(10);
-		if (++red_led_timer >= 10) RED_OFF;
-		if (mode_change_counter == 3) // A+B+Start pressed?
-		{
-			mode_change_timer++;
-			if (mode_change_timer >= 2000) // For a long time?
-			{
-				mode_change_timer = 0;
-				mode++; // Changing current mode...
-				if (mode > 2) mode = 0;
-				eeprom_write_byte((void*)0, mode);
-				// Blinking green led indicating new mode...
-				GREEN_OFF;
-				_delay_ms(500);
-				int m;
-				for (m = 0; m <= mode; m++)
-				{
-					GREEN_ON;
-					_delay_ms(500);
-					GREEN_OFF;
-					_delay_ms(500);
-				}
-				_delay_ms(1000);
-			}
-		} else mode_change_timer = 0;
+		if (++red_led_timer >= 10) RED_OFF;	
 	}
 	return 0;
 }
