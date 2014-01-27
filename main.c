@@ -61,7 +61,7 @@ int main()
 
 	wm_init((void*)classic_controller_id, but_dat, (void*)cal_data, wiimote_query);
 
-	const uint8_t mode = 0; // current mode
+	const uint8_t mode = 2; // current mode
 
 	while(1)
 	{
